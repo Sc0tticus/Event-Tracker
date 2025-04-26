@@ -44,11 +44,11 @@ function App() {
   const calculateTimeUntil = (eventDate, eventTime) => {
     const today = new Date()
     const [hours, minutes] = eventTime.split(':')
-    const event = new Date(eventDate)
-    event.setHours(parseInt(hours), parseInt(minutes))
+    const [year, month, day] = eventDate.split('-')
+    const event = new Date(year, month - 1, day, hours, minutes)
     const diffTime = event - today
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+    const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     
     if (diffDays < 0) {
       return 'Event has passed'
@@ -125,9 +125,9 @@ function App() {
   }
 
   const formatDateTime = (date, time) => {
-    const eventDate = new Date(date)
     const [hours, minutes] = time.split(':')
-    eventDate.setHours(parseInt(hours), parseInt(minutes))
+    const [year, month, day] = date.split('-')
+    const eventDate = new Date(year, month - 1, day, hours, minutes)
     return eventDate.toLocaleString(undefined, {
       weekday: 'long',
       year: 'numeric',
