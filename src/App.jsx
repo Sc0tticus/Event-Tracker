@@ -23,7 +23,15 @@ function App() {
       const response = await fetch(`${API_URL}/events`)
       if (!response.ok) throw new Error('Failed to fetch events')
       const data = await response.json()
-      setEvents(data)
+      
+      // Sort events by date and time
+      const sortedEvents = data.sort((a, b) => {
+        const dateA = new Date(`${a.date}T${a.time}`)
+        const dateB = new Date(`${b.date}T${b.time}`)
+        return dateA - dateB
+      })
+      
+      setEvents(sortedEvents)
       setError(null)
     } catch (err) {
       setError('Failed to load events. Please try again later.')
@@ -79,12 +87,17 @@ function App() {
 
   const handleEdit = async (event) => {
     try {
+      const formattedEvent = {
+        ...event,
+        date: new Date(event.date).toISOString().split('T')[0]
+      };
+      
       const response = await fetch(`${API_URL}/events/${event._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(event),
+        body: JSON.stringify(formattedEvent),
       })
       if (!response.ok) throw new Error('Failed to update event')
       const updatedEvent = await response.json()
@@ -166,7 +179,7 @@ function App() {
                 />
                 <input
                   type="date"
-                  value={editingEvent.date}
+                  value={new Date(editingEvent.date).toISOString().split('T')[0]}
                   onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
                 />
                 <input
