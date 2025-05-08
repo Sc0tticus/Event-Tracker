@@ -24,11 +24,20 @@ function App() {
       if (!response.ok) throw new Error('Failed to fetch events')
       const data = await response.json()
       
-      // Sort events by date and time
+      // Sort events by date and time, closest to today first
       const sortedEvents = data.sort((a, b) => {
+        const today = new Date()
         const dateA = new Date(`${a.date}T${a.time}`)
         const dateB = new Date(`${b.date}T${b.time}`)
-        return dateA - dateB
+        
+        // If event has passed, put it at the end
+        if (dateA < today && dateB < today) {
+          return dateB - dateA // Most recent past events first
+        }
+        if (dateA < today) return 1 // Past events go to the end
+        if (dateB < today) return -1
+        
+        return dateA - dateB // Future events sorted by date
       })
       
       setEvents(sortedEvents)
